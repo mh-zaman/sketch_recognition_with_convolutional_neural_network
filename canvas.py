@@ -11,8 +11,9 @@ import tensorflow as tf
 from imutils.contours import sort_contours
 from keras.models import load_model
 from PIL import Image, ImageGrab, ImageTk
-from similarity import orb_sim, structural_sim
 from skimage.transform import resize
+
+from similarity import orb_sim, structural_sim
 
 print("TensorFlow version:", tf.__version__)
 
@@ -47,7 +48,7 @@ class main:
 
         # Create label
         self.label = Label(
-            self.root, text="Pick a image or Draw Sketch here...👆👇", )
+            self.root, text="Pick an image or Sketch here...👆👇", )
         self.label.config(font=("Courier", 14), justify=CENTER)
         self.label.grid(row=1, column=0, columnspan=4)
 
@@ -62,28 +63,28 @@ class main:
         style.configure('E.TButton', font=(
             'calibri', 15, 'bold', 'underline'), foreground='red')
         exit_btn = Button(self.root, text='Quit',
-                        style='E.TButton', command=self.close)
+                          style='E.TButton', command=self.close)
         exit_btn.grid(row=3, column=0)
 
         ''' Button 2: Clear'''
         style.configure('C.TButton', font=(
             'calibri', 15, 'bold', 'underline'), foreground='blue')
         calculate_btn = Button(self.root, text='Clear',
-                            style='C.TButton', command=self.clear)
+                               style='C.TButton', command=self.clear)
         calculate_btn.grid(row=3, column=1)
 
         ''' Button 3: Detect'''
         style.configure('S.TButton', font=(
             'calibri', 15, 'bold', 'underline'), foreground='green')
         exit_btn = Button(self.root, text='Detect',
-                        style='S.TButton', command=self.solve)
+                          style='S.TButton', command=self.solve)
         exit_btn.grid(row=3, column=2)
 
         ''' Button 4: Browse Image'''
         style.configure('B.TButton', font=(
             'calibri', 15, 'bold', 'underline'), foreground='green')
         exit_btn = Button(self.root, text='Browse Image',
-                        style='B.TButton', command=self.browse)
+                          style='B.TButton', command=self.browse)
         exit_btn.grid(row=3, column=3)
 
         self.root.mainloop()
@@ -93,7 +94,7 @@ class main:
         if self.pick_image_path is None:
             print('Showing canvas...')
             self.root.geometry("{}x{}+{}+{}".format(self.root_width,
-                            self.root_height, self.x_cordinate, self.y_cordinate))
+                                                    self.root_height, self.x_cordinate, self.y_cordinate))
             self.c = Canvas(self.root, bd=3, relief="ridge", bg='white',
                             height=self.canvas_height, width=self.canvas_width)
             self.c.grid(row=0, column=0, columnspan=4, padx=20, pady=10)
@@ -121,7 +122,7 @@ class main:
         print('Browsed Image: ', fln)
         self.pick_image_path = fln
         self.show_image_or_canvas()
-        self.get_image_and_solve(self.pick_image_path)
+        self.get_image_and_predict(self.pick_image_path)
 
     # Function for closing window
     def close(self):
@@ -129,7 +130,7 @@ class main:
 
     # Function for clearing the canvas
     def clear(self):
-        self.label['text'] = "Pick a image or Draw Sketch here...👆👇"
+        self.label['text'] = "Pick an image or Draw Sketch here...👆👇"
         if self.pick_image_path is not None:
             self.pick_image_path = None
             self.show_image_or_canvas()
@@ -139,7 +140,7 @@ class main:
     # Function for putting a point on the canvas
     def putPoint(self, e):
         self.c.create_oval(e.x - self.bs, e.y - self.bs, e.x +
-                        self.bs, e.y + self.bs, outline='black', fill='black')
+                           self.bs, e.y + self.bs, outline='black', fill='black')
         self.pre = [e.x, e.y]
 
     # Function for drawing on the canvas
@@ -155,7 +156,7 @@ class main:
 
         success = self.get_image()
         if success:
-            self.get_image_and_solve("output/2_drawn-image.png")
+            self.get_image_and_predict("output/2_drawn-image.png")
 
     # Function for getting the image from the canvas
     def get_image(self):
@@ -176,7 +177,7 @@ class main:
 
     # Function for solving the prediction
 
-    def get_image_and_solve(self, path):
+    def get_image_and_predict(self, path):
         try:
             print('Predicting...')
             self.label['text'] = 'Predicting...'
@@ -259,7 +260,6 @@ class main:
                         cropped_image = img[y:y + h, x:x + w]
                         cv2.imwrite(
                             "output/9_cropped_image_of_prediction.png", cropped_image)
-
                     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0, 255), 2)
                     cv2.putText(img, label, (x-5, y),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
